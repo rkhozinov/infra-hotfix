@@ -1,0 +1,103 @@
+---
+- hosts: nsxt
+  remote_user: rkhozinov
+  sudo: yes
+  vars:
+    puppet_server: '172.18.184.57'
+    qemu_list:
+      - ipxe-qemu
+      - qemu
+      - qemu-block-extra
+      - qemu-kvm
+      - qemu-slof
+      - qemu-system
+      - qemu-system-arm
+      - qemu-system-common
+      - qemu-system-mips
+      - qemu-system-misc
+      - qemu-system-ppc
+      - qemu-system-sparc
+      - qemu-system-x86
+      - qemu-user
+      - qemu-user-binfmt
+      - qemu-utils
+    libvirt_list:
+      - libvirt-bin
+      - libvirt-dev
+      - libvirt0
+      - python-libvirt
+
+  tasks:
+    - name: clean additional apt sources
+      file: path=/etc/apt/sources.list.d/ state={{item}}
+      with_items:
+        - absent
+        - directory
+      tags: clean
+
+    - name: run puppet
+      command: puppet agent -tv {{ puppet_server }}
+      ignore_errors: yes
+      tags: puppet
+
+    - name: get list of sources
+      command: ls -l /etc/apt/sources.list.d/
+      register: list
+      tags: clean
+
+    - name: Run the equivalent of "apt-get update" as a separate step
+      apt:
+        update_cache: yes
+
+    - name: Update all packages to the latest version
+      apt:
+        upgrade: dist
+
+    - name: remove qemu is at the latest version
+      tags: packages
+      apt: name={{item}}
+           state=absent
+           install_recommends=yes
+           purge=yes
+      with_items:
+        - "{{qemu_list}}"
+
+    - name: ensure qemu is at the latest version
+      tags: packages
+      apt: name={{item}}
+           state=latest
+           install_recommends=yes
+      with_items:
+        - "{{qemu_list}}"
+
+    - name: remove libvirt is at the latest version
+      tags: packages
+      apt: name={{item}}
+           state=absent
+           install_recommends=yes
+           purge=yes
+      with_items:
+        - "{{libvirt_list}}"
+
+    - name: ensure libvirt is at the latest version
+      tags: packages
+      apt: name={{item}}
+           state=latest
+           install_recommends=yes
+      with_items:
+        - "{{libvirt_list}}"
+
+    - name: configure libvirt
+      tags: libvirt
+      template: src=libvirtd.conf.j2
+                dest=/etc/libvirt/libvirtd.conf
+
+    - name: restart libvirt
+      tags: libvirt
+      service: name=libvirt-bin
+               state=restarted
+
+    - name: version
+      tags: libvirt
+      command: bash -c 'dpkg -l | egrep "(libvirt|qemu)"'
+
