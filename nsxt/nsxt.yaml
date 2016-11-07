@@ -1,9 +1,11 @@
 ---
-- hosts: nsxt
+- hosts: tpi107
   remote_user: rkhozinov
   sudo: yes
   vars:
+    libvirt_log_level: 1 # debug
     puppet_server: '172.18.184.57'
+    qemu_security_driver: "none"
     qemu_list:
       - ipxe-qemu
       - qemu
@@ -91,6 +93,11 @@
       tags: libvirt
       template: src=libvirtd.conf.j2
                 dest=/etc/libvirt/libvirtd.conf
+
+    - name: configure qemu
+      tags: libvirt
+      template: src=qemu.conf.j2
+                dest=/etc/libvirt/qemu.conf
 
     - name: restart libvirt
       tags: libvirt
