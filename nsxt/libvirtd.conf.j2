@@ -8,3 +8,9 @@ unix_sock_rw_perms = "0777"
 auth_unix_ro = "none"
 auth_unix_rw = "none"
 auth_tcp = "none"
+{% if libvirt_log_level %}
+log_level={{ libvirt_log_level }}
+{% else %}
+log_level = 3
+{% endif %}
+audit_level=0
