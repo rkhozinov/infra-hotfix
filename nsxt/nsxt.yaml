@@ -6,7 +6,11 @@
   vars:
     libvirt_log_level: 2 # info
     puppet_server: '172.18.184.57'
+    lxc_log_with_libvirtd: 1
     qemu_security_driver: "none"
+    lxc_security_driver: "none"
+    lxc_default_confined: 0
+    lxc_required_confined: 0
     qemu_list:
       - ipxe-qemu
       - qemu
@@ -94,6 +98,11 @@
       tags: libvirt
       template: src=libvirtd.conf.j2
                 dest=/etc/libvirt/libvirtd.conf
+
+    - name: configure lxc
+      tags: libvirt
+      template: src=lxc.conf.j2
+                dest=/etc/libvirt/lxc.conf
 
     - name: configure qemu
       tags: libvirt
