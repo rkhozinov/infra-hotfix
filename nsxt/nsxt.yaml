@@ -8,6 +8,11 @@
     puppet_server: '172.18.184.57'
     lxc_log_with_libvirtd: 1
     qemu_security_driver: "none"
+    qemu_vnc_listen: "0.0.0.0"
+    qemu_vnc_tls: 0
+    qemu_spice_listen: "0.0.0.0"
+    qemu_spice_tls: 0
+    qemu_seccomp_sandbox: -1
     lxc_security_driver: "none"
     lxc_default_confined: 0
     lxc_required_confined: 0
