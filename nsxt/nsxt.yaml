@@ -1,9 +1,10 @@
 ---
-- hosts: tpi107
+- hosts: all
   remote_user: rkhozinov
+  gather_facts: False
   sudo: yes
   vars:
-    libvirt_log_level: 1 # debug
+    libvirt_log_level: 2 # info
     puppet_server: '172.18.184.57'
     qemu_security_driver: "none"
     qemu_list:
