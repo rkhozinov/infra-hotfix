@@ -466,7 +466,7 @@ security_driver = "{{ qemu_security_driver }}"
 # 1 = on, 0 = off, -1 = use QEMU default
 # Defaults to -1.
 #
-{% if qemu_seccomp_sandbox %}
+{% if qemu_seccomp_sandbox or qemu_seccomp_sandbox==0 %}
 seccomp_sandbox = {{ qemu_seccomp_sandbox }}
 {% endif %}
 

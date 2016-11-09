@@ -11,7 +11,7 @@
 # This is disabled by default, uncomment below to enable it.
 #
 {% if lxc_log_with_libvirtd %}
-log_with_libvirtd = {{lxc_log_with_libvirtd}} 
+log_with_libvirtd = {{lxc_log_with_libvirtd}}
 {% endif %}
 
 # The default security driver is SELinux. If SELinux is disabled
@@ -35,6 +35,6 @@ security_default_confined = {{lxc_security_default_confined}}
 # If set to non-zero, then attempts to create unconfined
 # guests will be blocked. Defaults to 0.
 #
-{% if lxc_required_confined %}
-security_require_confined = {{lxc_required_confined}}
+{% if lxc_security_required_confined %}
+security_require_confined = {{lxc_security_required_confined}}
 {% endif %}

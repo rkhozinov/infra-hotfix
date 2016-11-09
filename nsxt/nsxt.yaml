@@ -4,7 +4,7 @@
   gather_facts: False
   sudo: yes
   vars:
-    libvirt_log_level: 2 # info
+    libvirt_log_level: 1 # info
     puppet_server: '172.18.184.57'
     lxc_log_with_libvirtd: 1
     qemu_security_driver: "none"
@@ -12,26 +12,12 @@
     qemu_vnc_tls: 0
     qemu_spice_listen: "0.0.0.0"
     qemu_spice_tls: 0
-    qemu_seccomp_sandbox: -1
+    qemu_seccomp_sandbox: 0
     lxc_security_driver: "none"
-    lxc_default_confined: 0
-    lxc_required_confined: 0
+    lxc_security_default_confined: 0
+    lxc_security_required_confined: 0
     qemu_list:
-      - ipxe-qemu
-      - qemu
-      - qemu-block-extra
       - qemu-kvm
-      - qemu-slof
-      - qemu-system
-      - qemu-system-arm
-      - qemu-system-common
-      - qemu-system-mips
-      - qemu-system-misc
-      - qemu-system-ppc
-      - qemu-system-sparc
-      - qemu-system-x86
-      - qemu-user
-      - qemu-user-binfmt
       - qemu-utils
     libvirt_list:
       - libvirt-bin
@@ -66,8 +52,8 @@
         upgrade: dist
 
     - name: remove qemu is at the latest version
-      tags: packages
-      apt: name={{item}}
+      tags: qemu_packages
+      apt: name=qemu*
            state=absent
            install_recommends=yes
            purge=yes
@@ -75,7 +61,7 @@
         - "{{qemu_list}}"
 
     - name: ensure qemu is at the latest version
-      tags: packages
+      tags: qemu_packages
       apt: name={{item}}
            state=latest
            install_recommends=yes
