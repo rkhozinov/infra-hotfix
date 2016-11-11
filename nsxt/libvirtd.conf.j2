@@ -1,16 +1,57 @@
 listen_tls = 0
 listen_tcp = 1
 tcp_port = "16509"
-listen_addr = "0.0.0.0"
+
 mdns_adv = 0
-unix_sock_group = "libvirtd"
-unix_sock_rw_perms = "0777"
+
+{% if libvirt_listen_address is defined %}
+listen_addr = "{{libvirt_listen_address}}"
+{% endif %}
+
+{% if libvirt_unix_sock_group is defined %}
+unix_sock_group = "{{libvirt_unix_sock_group}}"
+{% endif %}
+
+{% if libvirt_unix_sock_rw_perms is defined %}
+unix_sock_rw_perms = "{{libvirt_unix_sock_rw_perms}}"
+{% endif %}
+
 auth_unix_ro = "none"
 auth_unix_rw = "none"
 auth_tcp = "none"
-{% if libvirt_log_level %}
-log_level={{ libvirt_log_level }}
-{% else %}
-log_level = 3
+
+{% if libvirt_log_level is defined %}
+log_level={{libvirt_log_level}}
 {% endif %}
-audit_level=0
+
+{% if libvirt_access_driver is defined %}
+access_drivers = [ "{{libvirt_access_driver}}" ]
+{% endif %}
+
+{% if libvirt_audit_level is defined %}
+audit_level = {{libvirt_audit_level}}
+{% endif %}
+
+{% if libvirt_max_clients is defined %}
+max_clients = {{libvirt_max_clients}}
+{% endif %}
+
+{% if libvirt_max_queued_clients is defined %}
+max_queued_clients = {{libvirt_max_queued_clients}}
+{% endif %}
+
+{% if libvirt_max_anonymous_clients is defined %}
+max_anonymous_clients = {{libvirt_max_anonymous_clients}}
+{% endif %}
+
+{% if libvirt_min_workers is defined %}
+min_workers = {{libvirt_min_workers}}
+{% endif %}
+
+{% if libvirt_max_workers is defined %}
+max_workers = {{libvirt_max_workers}}
+{% endif %}
+
+{% if libvirt_max_requests is defined %}
+max_requests = {{libvirt_max_requests}}
+{% endif %}
