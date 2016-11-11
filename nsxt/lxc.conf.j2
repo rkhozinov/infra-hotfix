@@ -35,6 +35,6 @@ security_default_confined = {{lxc_security_default_confined}}
 # If set to non-zero, then attempts to create unconfined
 # guests will be blocked. Defaults to 0.
 #
-{% if lxc_security_required_confined %}
-security_require_confined = {{lxc_security_required_confined}}
+{% if lxc_security_require_confined %}
+security_require_confined = {{lxc_security_require_confined}}
 {% endif %}
