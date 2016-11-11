@@ -9,7 +9,7 @@
 # NB, strong recommendation to enable TLS + x509 certificate
 # verification when allowing public access
 #
-{% if qemu_vnc_listen %}
+{% if qemu_vnc_listen is defined %}
 vnc_listen = "{{ qemu_vnc_listen }}"
 {% endif %}
 
@@ -31,7 +31,7 @@ vnc_listen = "{{ qemu_vnc_listen }}"
 # It is necessary to setup CA and issue a server certificate
 # before enabling this.
 #
-{% if qemu_vnc_tls %}
+{% if qemu_vnc_tls is defined %}
 vnc_tls = {{ qemu_vnc_tls }}
 {% endif %}
 
@@ -202,18 +202,22 @@ spice_tls = {{ qemu_spice_tls }}
 # a special value; security_driver can be set to that value in
 # isolation, but it cannot appear in a list of drivers.
 #
-{% if qemu_security_driver %}
+{% if qemu_security_driver is defined %}
 security_driver = "{{ qemu_security_driver }}"
 {% endif %}
 
 # If set to non-zero, then the default security labeling
 # will make guests confined. If set to zero, then guests
 # will be unconfined by default. Defaults to 1.
-#security_default_confined = 1
+{% if qemu_security_default_confined is defined %}
+security_default_confined  = {{ qemu_security_default_confined }}
+{% endif %}
 
 # If set to non-zero, then attempts to create unconfined
 # guests will be blocked. Defaults to 0.
-#security_require_confined = 1
+{% if qemu_security_require_confined is defined %}
+security_require_confined  = {{ qemu_security_require_confined }}
+{% endif %}
 
 # The user for QEMU processes run by the system instance. It can be
 # specified as a user name or as a user id. The qemu driver will try to
@@ -372,7 +376,9 @@ security_driver = "{{ qemu_security_driver }}"
 # Warning: Disabling this option means that a compromised guest can
 # exploit the privileges and possibly do damage to the host.
 #
-#clear_emulator_capabilities = 1
+{% if qemu_clear_emulator_capabilities is defined %}
+clear_emulator_capabilities = {{qemu_clear_emulator_capabilities}}
+{% endif %}
 
 
 # If enabled, libvirt will have QEMU set its process name to

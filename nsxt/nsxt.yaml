@@ -4,18 +4,32 @@
   gather_facts: False
   sudo: yes
   vars:
-    libvirt_log_level: 1 # info
+    libvirt_log_level: 2 # info
+    libvirt_clear_log: true
     puppet_server: '172.18.184.57'
     lxc_log_with_libvirtd: 1
+    libvirt_listen_address: "0.0.0.0"
+    libvirt_audit_level: 0
+    libvirt_max_clients: 100
+    libvirt_max_queued_clients: 50
+    libvirt_max_anonymous_clients: 100
+    libvirt_min_workers: 20
+    libvirt_max_workers: 100
+    libvirt_max_requests: 100
+    libvirt_unix_sock_group: "libvirtd"
+    libvirt_unix_sock_rw_perms: "0777"
     qemu_security_driver: "none"
     qemu_vnc_listen: "0.0.0.0"
     qemu_vnc_tls: 0
     qemu_spice_listen: "0.0.0.0"
     qemu_spice_tls: 0
     qemu_seccomp_sandbox: 0
+    qemu_clear_emulator_capabilities: 0
+    qemu_security_default_confined: 1
+    qemu_security_require_confined: 0
     lxc_security_driver: "none"
-    lxc_security_default_confined: 0
-    lxc_security_required_confined: 0
+    lxc_security_default_confined: 1
+    lxc_security_require_confined: 0
     qemu_list:
       - qemu-kvm
       - qemu-utils
@@ -38,10 +52,8 @@
       ignore_errors: yes
       tags: puppet
 
-    - name: get list of sources
-      command: ls -l /etc/apt/sources.list.d/
-      register: list
-      tags: clean
+#   - name: add virtualization ppa
+#     apt_repository: repo="ppa:syseleven-platform/virtualization"
 
     - name: Run the equivalent of "apt-get update" as a separate step
       apt:
@@ -57,8 +69,6 @@
            state=absent
            install_recommends=yes
            purge=yes
-      with_items:
-        - "{{qemu_list}}"
 
     - name: ensure qemu is at the latest version
       tags: qemu_packages
@@ -85,8 +95,21 @@
       with_items:
         - "{{libvirt_list}}"
 
+    - name: apparmor teardown
+      tags: libvirt, libvirt_conf
+      shell: service apparmor teardown
+      register: apparmor_msg
+
+    - debug: msg={{apparmor_msg.stdout}}
+      tags: libvirt, libvirt_conf
+      when: apparmor_msg is defined
+
+    - name: apparmor teardown
+      tags: libvirt, libvirt_conf
+      service: name=apparmor state=stopped
+
     - name: configure libvirt
-      tags: libvirt
+      tags: libvirt, libvirt_conf
       template: src=libvirtd.conf.j2
                 dest=/etc/libvirt/libvirtd.conf
 
@@ -100,12 +123,30 @@
       template: src=qemu.conf.j2
                 dest=/etc/libvirt/qemu.conf
 
+    - name: clear libvirt log
+      tags: libvirt, libvirt_conf
+      shell: echo | sudo tee -i /var/log/libvirt/libvirtd.log
+      when: libvirt_clear_log is defined
+
     - name: restart libvirt
-      tags: libvirt
+      tags: libvirt, libvirt_conf
       service: name=libvirt-bin
                state=restarted
 
+    - name: pastebin libvirt.log
+      shell: pastebinit -i /var/log/libvirt/libvirtd.log
+      tags: libvirt, libvirt_conf
+      register: pastebin_url
+
+    - debug: msg={{pastebin_url.stdout}}
+      tags: libvirt, libvirt_conf
+      when: pastebin_url is defined
+
     - name: version
-      tags: libvirt
-      command: bash -c 'dpkg -l | egrep "(libvirt|qemu)"'
+      tags: libvirt, version
+      shell: dpkg -l | egrep "(libvirt|qemu)"
+      register: version
+
+    - debug: msg={{version.stdout.split('\n')}}
+      tags: version
 
