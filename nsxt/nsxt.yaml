@@ -70,6 +70,10 @@
       apt:
         upgrade: dist
 
+    - name: Remove unused packages
+      apt:
+        autoremove: yes
+
     - name: remove qemu is at the latest version
       tags: qemu_packages
       apt: name=qemu*
