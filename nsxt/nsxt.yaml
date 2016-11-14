@@ -4,9 +4,11 @@
   gather_facts: False
   sudo: yes
   vars:
+    puppet_server: '172.18.184.57'
+    update_snapshots: false
+
     libvirt_log_level: 2 # info
     libvirt_clear_log: true
-    puppet_server: '172.18.184.57'
     lxc_log_with_libvirtd: 1
     libvirt_listen_address: "0.0.0.0"
     libvirt_audit_level: 0
@@ -46,6 +48,11 @@
         - absent
         - directory
       tags: clean
+
+    - name: disable udpate snapshots
+      command: touch /var/lib/vmware_nodeploy
+      when: update_snapshots
+      tags: puppet
 
     - name: run puppet
       command: puppet agent -tv {{ puppet_server }}
