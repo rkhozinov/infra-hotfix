@@ -1,0 +1,3 @@
+---
+  - name: add virtualization ppa
+    apt_repository: repo="ppa:syseleven-platform/virtualization"

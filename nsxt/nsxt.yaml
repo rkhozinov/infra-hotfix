@@ -6,6 +6,7 @@
   vars:
     puppet_server: '172.18.184.57'
     update_snapshots: false
+    additional_package_repos: false
 
     libvirt_log_level: 2 # info
     libvirt_clear_log: true
@@ -59,8 +60,8 @@
       ignore_errors: yes
       tags: puppet
 
-#   - name: add virtualization ppa
-#     apt_repository: repo="ppa:syseleven-platform/virtualization"
+    - include: additional_package_repos.yaml
+      when: additional_package_repos
 
     - name: Run the equivalent of "apt-get update" as a separate step
       apt:
