@@ -21,7 +21,7 @@ log_with_libvirtd = {{lxc_log_with_libvirtd}}
 # to 'none' instead.
 #
 {% if lxc_security_driver %}
-lxc_security_driver = {{lxc_security_driver}}
+lxc_security_driver = "{{lxc_security_driver}}"
 {% endif %}
 
 # If set to non-zero, then the default security labeling
