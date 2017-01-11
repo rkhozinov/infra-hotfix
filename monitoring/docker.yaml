@@ -1,0 +1,79 @@
+---
+- hosts: all
+  sudo: yes
+  gather_facts: False
+  vars:
+    git_repo:
+      url: "https://github.com/rkhozinov/grafanatour.git"
+      version: master
+      dest: /tmp/grafanatour
+      clone: yes
+      update: yes
+    packages:
+      - apt-transport-https
+      - ca-certificates
+      - docker-engine
+      - git
+    pip_packages:
+      - pip
+      - docker-compose
+
+  tasks:
+    - name: add docker repo
+      apt_repository:
+        repo: 'deb https://apt.dockerproject.org/repo ubuntu-trusty main'
+        state: present
+        filename: 'docker'
+
+    - name: get docker repo key
+      apt_key:
+        keyserver: 'hkp://ha.pool.sks-keyservers.net:80'
+        id: '58118E89F3A912897C070ADBF76221572C52609D'
+
+    - name: Update all packages to the latest version
+      apt:
+        upgrade: dist
+        update_cache: yes
+        dpkg_options: 'force-confold,force-confdef'
+
+    - name: install {{item}}
+      apt: name={{item}}
+           state=latest
+           install_recommends=yes
+      with_items:
+        - "{{packages}}"
+
+    - name:  install {{item}}
+      pip:
+        name: "{{item}}"
+        state: forcereinstall
+      with_items:
+        - "{{pip_packages}}"
+
+    - name: get grafana repo
+      git:
+        repo="{{git_repo.url}}"
+        version="{{git_repo.version}}"
+        dest="{{git_repo.dest}}"
+        clone=yes
+        update=yes
+
+    - stat: path={{git_repo.dest}}
+      tags: run, stop
+      register: repo_path
+
+    - name: restart docker service
+      tags: run
+      service:
+        name=docker
+        state=restarted
+
+    - name: stop docker-compose
+      tags: run, stop
+      when: repo_path
+      shell: "cd {{git_repo.dest}} && /usr/local/bin/docker-compose down"
+
+    - name: start docker-compose
+      tags: run
+      when: repo_path
+      shell: "cd {{git_repo.dest}} && /usr/local/bin/docker-compose up -d "
